@@ -3,10 +3,7 @@
 nginx_conf_template: "nginx.conf.j2"
 nginx_conf_file_path: "/etc/nginx/nginx.conf"
 cert_dir: "/etc/nginx/ssl"
-nginx_listen_port: "40443"
 nginx_allow_ip_list: true
-cadvisor_host: "127.0.0.1:8080"
-node_exporter_host: "127.0.0.1:9100"
 
 # Configure Nginx proxy for Docker
 docker_nginx_conf_template: "nginx_docker.conf.j2"
@@ -18,3 +15,4 @@ docker_nginx_default_conf_file_path: "/home/vagrant/wordpress_stack/nginx-conf/c
 docker_cert_dir: "/home/vagrant/wordpress_stack/nginx-conf/ssl"
 docker_nginx_listen_port: "443"
 docker_server_name: "example.com"
+script_swarm_join: "swarm_join.sh"

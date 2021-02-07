@@ -29,6 +29,15 @@
     state: started
     enabled: true
 
+- name: Copy Docker deploy compose file in place.
+  template:
+    src: "{{ script_swarm_join }}.j2"
+    dest: "{{ docker_deploy_dir }}/swarm_join.sh"
+    owner: root
+    group: root
+    mode: 0644
+  when: ansible_hostname == "wordpress" and install.changed
+
 - name: Init Docker Swarm master node
   shell: "cd {{ docker_deploy_dir }} && docker swarm init --advertise-addr 192.168.0.13 | grep 'docker swarm join --token' >> swarm_join.sh"
   when: ansible_hostname == "wordpress" and install.changed
@@ -36,3 +45,24 @@
 - name: Deploy Wordpress Stack
   shell: "cd {{ docker_deploy_dir }} && docker stack deploy --compose-file wordpress.yml wordpress-stack"
   when: ansible_hostname == "wordpress" and install.changed
+
+- name: Copy script "swarm_join.sh" from wordpress node
+  fetch:
+    src: "{{ docker_deploy_dir }}/swarm_join.sh"
+    dest: /tmp/
+    flat: yes
+  when: ansible_hostname == "wordpress"
+
+- name: Copy swarm script join in cluster on worker.
+  copy:
+    src: /tmp/swarm_join.sh
+    dest: /home/vagrant/swarm_join.sh
+    owner: root
+    group: root
+    mode: 0755
+  when: ansible_hostname == "mysql"
+  register: swarm_join_in_cluster
+
+- name: Deploy Wordpress Stack
+  shell: "./swarm_join.sh"
+  when: ansible_hostname == "mysql" and swarm_join_in_cluster.changed

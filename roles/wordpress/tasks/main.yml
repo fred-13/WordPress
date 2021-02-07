@@ -1,20 +1,23 @@
 ---
 
-# - import_tasks: selinux.yml
-#   when: ansible_selinux.status == "enabled"
+- import_tasks: selinux.yml
+  when: ansible_selinux.status == "enabled"
 
-# - import_tasks: install_nginx.yml
+- import_tasks: install_nginx.yml
+  when: ansible_hostname == "wordpress"
+
+- import_tasks: configure_nginx.yml
+  when: ansible_hostname == "wordpress"
+
+- import_tasks: configure_wordpress.yml
+  when: ansible_hostname == "wordpress"
 
 - import_tasks: install_docker.yml
 
-# - import_tasks: configure_nginx.yml
-
-# - import_tasks: configure_wordpress.yml
-#   when: ansible_hostname == "wordpress"
-
-# - name: Ensure nginx is enabled on boot
-#   systemd:
-#     daemon_reload: true
-#     name: nginx
-#     enabled: true
-#     state: started
+- name: Ensure nginx is enabled on boot
+  systemd:
+    daemon_reload: true
+    name: nginx
+    enabled: true
+    state: started
+  when: ansible_hostname == "wordpress"

@@ -21,11 +21,12 @@
     setype: http_port_t
     state: present
   with_items:
-    - "{{ nginx_listen_port }}"
     - "{{ docker_nginx_listen_port }}"
+  when: ansible_hostname == "wordpress"
 
 - name: Set httpd_can_network_connect flag on and keep it persistent across reboots
   seboolean:
     name: httpd_can_network_connect
     state: yes
     persistent: yes
+  when: ansible_hostname == "wordpress"

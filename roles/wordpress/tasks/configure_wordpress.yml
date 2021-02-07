@@ -35,6 +35,11 @@
     owner: root
     group: root
     mode: 0644
+  notify:
+    - Check Nginx config
+    - Nginx test status all
+    - Nginx test status
+    - Service Nginx restart
 
 - name: Copy Docker default nginx configuration in place.
   template:
@@ -43,6 +48,11 @@
     owner: root
     group: root
     mode: 0644
+  notify:
+    - Check Nginx config
+    - Nginx test status all
+    - Nginx test status
+    - Service Nginx restart
 
 - name: Copy certs files
   copy:
@@ -53,3 +63,8 @@
    - "nginx_cert.crt"
    - "nginx_csr.csr"
    - "nginx_key.pem"
+  notify:
+    - Check Nginx config
+    - Nginx test status all
+    - Nginx test status
+    - Service Nginx restart

@@ -1,9 +1,11 @@
-How to run playbook for install Nginx Proxy with self signed SSL (OS based - Centos, RHEL 7):
+## This repository is for running a WordPress web server in Docker deploy with Ansible tool.
+## WordPress stack: WordPress, MySQL and Nginx with self signed SSL.
 
+## How to run project:
 ```
-	ansible-playbook -i hosts wordpress.yaml -k
+	vagrant up
 ```
 
-```
-docker stack deploy --compose-file wordpress.yml wordpress-test
-```
+## If everything is ok, open the following link:
+
+## [https://localhost:8080/](https://localhost:8080/)
