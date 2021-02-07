@@ -1,0 +1,8 @@
+---
+- hosts: wordpress-nodes
+  remote_user: vagrant
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+  - roles/wordpress

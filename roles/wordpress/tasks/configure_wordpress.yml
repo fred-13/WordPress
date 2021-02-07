@@ -1,0 +1,55 @@
+---
+
+- name: Create deploy directy for Docker Swarm
+  file:
+    path: "{{ docker_deploy_dir }}"
+    state: directory
+
+- name: Create SSL directy for Docker Nginx
+  file:
+    path: "{{ docker_cert_dir }}"
+    state: directory
+
+- name: Create cofig directy for Docker Nginx
+  file:
+    path: "{{ docker_nginx_conf_file_path }}"
+    state: directory
+
+- name: Create default cofig directy for Docker Nginx
+  file:
+    path: "{{ docker_nginx_default_conf_file_path }}"
+    state: directory
+
+- name: Copy Docker deploy compose file in place.
+  template:
+    src: "{{ docker_deploy_compose_file }}"
+    dest: "{{ docker_deploy_dir }}/wordpress.yml"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy Docker nginx configuration in place.
+  template:
+    src: "{{ docker_nginx_conf_template }}"
+    dest: "{{ docker_nginx_conf_file_path }}/nginx.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy Docker default nginx configuration in place.
+  template:
+    src: "{{ docker_nginx_default_conf_template }}"
+    dest: "{{ docker_nginx_default_conf_file_path }}/wordpress.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy certs files
+  copy:
+    src: "{{cert_dir}}/{{ item }}"
+    dest: "{{ docker_cert_dir }}"
+    remote_src: True
+  with_items:
+   - "nginx_cert.crt"
+   - "nginx_csr.csr"
+   - "nginx_key.pem"

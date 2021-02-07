@@ -1,0 +1,9 @@
+# Env for MySQL Server
+MYSQL_ROOT_PASSWORD: "Hard123456"
+MYSQL_USER: "wordpress"
+MYSQL_PASSWORD: "wordpress"
+
+# Env for Wordpress connectivity
+WORDPRESS_DB_NAME: "wordpress"
+WORDPRESS_DB_USER: "wordpress"
+WORDPRESS_DB_PASSWORD: "wordpress"

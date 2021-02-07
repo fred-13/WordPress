@@ -1,0 +1,31 @@
+---
+- name: Install selinux python packages [RHEL]
+  package:
+    name:
+      - "libselinux-python"
+      - "policycoreutils-python"
+      - "libsemanage-python"
+    state: present
+  register: _install_selinux_packages
+  until: _install_selinux_packages is success
+  retries: 5
+  delay: 2
+  when:
+    - (ansible_distribution | lower == "redhat") or
+      (ansible_distribution | lower == "centos")
+
+- name: Allow Nginx to listen on tcp port {{ item }}
+  seport:
+    ports: "{{ item }}"
+    proto: tcp
+    setype: http_port_t
+    state: present
+  with_items:
+    - "{{ nginx_listen_port }}"
+    - "{{ docker_nginx_listen_port }}"
+
+- name: Set httpd_can_network_connect flag on and keep it persistent across reboots
+  seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes

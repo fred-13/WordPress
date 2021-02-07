@@ -1,0 +1,38 @@
+---
+
+- name: Dependence is installed.
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - yum-utils
+    - sshpass
+
+- name: Add Docker repo
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+
+- name: Ensure Docker is installed.
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+  register: install
+
+- name: Ensure Docker service is running as configured.
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Init Docker Swarm master node
+  shell: "cd {{ docker_deploy_dir }} && docker swarm init --advertise-addr 192.168.0.13 | grep 'docker swarm join --token' >> swarm_join.sh"
+  when: ansible_hostname == "wordpress" and install.changed
+
+- name: Deploy Wordpress Stack
+  shell: "cd {{ docker_deploy_dir }} && docker stack deploy --compose-file wordpress.yml wordpress-stack"
+  when: ansible_hostname == "wordpress" and install.changed
