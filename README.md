@@ -8,4 +8,4 @@
 
 ## If everything is ok, open the following link:
 
-## [https://localhost:8080/](https://localhost:8080/)
+## [https://localhost/](https://localhost/)
