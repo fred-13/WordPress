@@ -1,0 +1,88 @@
+---
+- hosts: localhost
+  remote_user: vagrant
+  become: true
+  become_method: sudo
+  become_user: root
+  vars:
+    db:
+      MYSQL_ROOT_PASSWORD: "Hard123456"
+      MYSQL_USER: "wordpress"
+      MYSQL_PASSWORD: "wordpress"
+      MYSQL_DATABASE: "wordpress"
+    wordpress:
+      WORDPRESS_DB_USER: "wordpress"
+      WORDPRESS_DB_PASSWORD: "wordpress"
+      WORDPRESS_DB_HOST: "db:3306"
+      WORDPRESS_DB_NAME: "wordpress"
+  tasks:
+  - name: Ensure PIP package-manager is installed.
+    yum:
+      name: "./python-pip/{{ item }}"
+      state: present
+    loop:
+      - python2-pip.rpm
+      - python-backports.rpm
+      - python-backports-ssl_match_hostname.rpm
+      - python-ipaddress.rpm
+      - python-setuptools.rpm
+
+  - name: install latest jsondiff and pyyaml modules if needed
+    pip:
+      name: "file:///home/vagrant/pip/{{ item }}"
+      state: latest
+    loop:
+      - jsondiff.tar.gz
+      - PyYAML.tar.gz
+
+  - name: Create conf.d directory
+    file:
+      path: ./wordpress_stack/nginx-conf/conf.d
+      state: directory
+
+  - name: Copy SSL files in place
+    copy:
+      src: ./wordpress_stack/nginx-conf/ssl
+      dest: ./wordpress_stack/nginx-conf
+
+  - name: Copy nginx.conf configuration in place
+    template:
+      src: ./wordpress_stack/nginx-conf/nginx.conf.j2
+      dest: ./wordpress_stack/nginx-conf/nginx.conf
+
+  - name: Checking checksum nginx.conf
+    stat:
+      path: ./wordpress_stack/nginx-conf/nginx.conf
+      get_checksum: yes
+    register: st_nginx
+
+  - name: Show nginx.conf checksum
+    debug:
+      var: st_nginx.stat.checksum
+
+  - name: Copy wordpress.conf configuration in place.
+    template:
+      src: ./wordpress_stack/nginx-conf/conf.d/wordpress.conf.j2
+      dest: ./wordpress_stack/nginx-conf/conf.d/wordpress.conf
+
+  - name: Checking checksum nginx.conf
+    stat:
+      path: ./wordpress_stack/nginx-conf/conf.d/wordpress.conf
+      get_checksum: yes
+    register: st_wordpress
+
+  - name: Show wordpress.conf checksum
+    debug:
+      var: st_wordpress.stat.checksum
+
+  - name: Copy wordpress.yml deploy file in place.
+    template:
+      src: ./wordpress_stack/wordpress.yml.j2
+      dest: ./wordpress_stack/wordpress.yml
+
+  - name: Deploy stack from a compose file
+    docker_stack:
+      state: present
+      name: Test-stack
+      compose:
+        - ./wordpress_stack/wordpress.yml
